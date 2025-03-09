@@ -44,7 +44,7 @@ func calculate(input string) string {
 
 	switch operator {
 	case "+":
-		return truncate(str1 + str2)
+		return handleAddition(str1, str2)
 	case "-":
 		return handleSubtraction(str1, str2)
 	case "*":
