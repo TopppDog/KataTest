@@ -43,13 +43,14 @@ func calculate(input string) string {
 			panic("Вторая часть должна быть строкой в кавычках или числом.")
 		}
 		return formatResult(handleOperation(str1, operator, remaining))
+	} else {
+		endQuoteIndex = strings.Index(remaining[1:], "\"") + 1
+		if endQuoteIndex == 0 {
+			panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
+		}
+		str2 := remaining[1:endQuoteIndex]
+		return formatResult(handleOperation(str1, operator, str2))
 	}
-	endQuoteIndex = strings.Index(remaining[1:], "\"") + 1
-	if endQuoteIndex == 0 {
-		panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
-	}
-	str2 := remaining[1:endQuoteIndex]
-	return formatResult(handleOperation(str1, operator, str2))
 }
 
 func handleOperation(str1, operator, str2 string) string {
