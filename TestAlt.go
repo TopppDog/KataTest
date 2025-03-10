@@ -21,27 +21,38 @@ func main() {
 }
 
 func calculate(input string) string {
-
-	parts := strings.Fields(input)
-	if len(parts) != 3 {
-		panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
-	}
-	str1 := parts[0]
-	operator := parts[1]
-	str2 := parts[2]
-	if str1[0] == '"' && str1[len(str1)-1] == '"' {
-		str1 = str1[1 : len(str1)-1]
-	} else {
+	input = strings.TrimSpace(input)
+	if input[0] != '"' {
 		panic("Первая строка должна быть в кавычках.")
 	}
-	if str2[0] == '"' && str2[len(str2)-1] == '"' {
-		str2 = str2[1 : len(str2)-1]
-	} else {
-		if _, err := strconv.Atoi(str2); err != nil {
+	endQuoteIndex := strings.Index(input[1:], "\"") + 1
+	if endQuoteIndex == 0 {
+		panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
+	}
+	str1 := input[1:endQuoteIndex]
+	remaining := input[endQuoteIndex+1:]
+	remaining = strings.TrimSpace(remaining)
+	if len(remaining) < 1 {
+		panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
+	}
+	operator := string(remaining[0])
+	remaining = remaining[1:]
+	remaining = strings.TrimSpace(remaining)
+	if remaining[0] != '"' {
+		if _, err := strconv.Atoi(remaining); err != nil {
 			panic("Вторая часть должна быть строкой в кавычках или числом.")
 		}
+		return formatResult(handleOperation(str1, operator, remaining))
 	}
+	endQuoteIndex = strings.Index(remaining[1:], "\"") + 1
+	if endQuoteIndex == 0 {
+		panic("Неверный формат выражения. Ожидалось: 'строка операция строка/число'")
+	}
+	str2 := remaining[1:endQuoteIndex]
+	return formatResult(handleOperation(str1, operator, str2))
+}
 
+func handleOperation(str1, operator, str2 string) string {
 	switch operator {
 	case "+":
 		return handleAddition(str1, str2)
@@ -92,4 +103,8 @@ func truncate(s string) string {
 		return s[:40] + "..."
 	}
 	return s
+}
+
+func formatResult(s string) string {
+	return fmt.Sprintf("\"%s\"", s)
 }
